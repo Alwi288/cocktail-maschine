@@ -1,0 +1,35 @@
+# Konfiguration für die Cocktail Maschine
+
+# GPIO Pin-Zuordnung (BCM-Nummerierung verwenden!)
+# Beispiel: Pumpe an Index 0 ist an GPIO Pin 17 angeschlossen
+# Füge hier alle 8 Pumpen hinzu oder passe die Liste an, wenn weniger genutzt werden.
+# ACHTUNG: Diese Nummern musst du später an deine echte Verkabelung anpassen!
+pump_pins:
+  - 17  # Pumpe 0 / Anschluss 1
+  - 18  # Pumpe 1 / Anschluss 2
+  - 27  # Pumpe 2 / Anschluss 3
+  - 22  # Pumpe 3 / Anschluss 4
+  - 23  # Pumpe 4 / Anschluss 5
+  - 24  # Pumpe 5 / Anschluss 6
+  - 25  # Pumpe 6 / Anschluss 7
+  - 4   # Pumpe 7 / Anschluss 8
+
+# Pfade
+database_path: "data/cocktails.db"
+image_folder: "images/"
+log_file: "logs/app.log"
+
+# Zeiten (in Sekunden)
+default_cleaning_duration_per_pump: 15
+
+# Einstellungen
+# Mögliche Glasgrößen (Name: Gesamtvolumen in ml)
+# Die erste Größe ist der Standard und wird initial verwendet.
+glass_sizes:
+  Medium: 200
+  Small: 150
+  Large: 250
+
+# Sicherheit
+# Einfacher PIN für Techniker-Menü (Ändere das später auf jeden Fall!)
+technician_pin: "1234"

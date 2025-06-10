@@ -1,0 +1,99 @@
+#:kivy 1.11.1
+
+WindowManager: # Ebene 0
+    # Screen Deklarationen: Ebene 1 (4 spaces), name: Ebene 2 (8 spaces)
+    MainScreen:
+        name: 'main'
+    ServiceMenuScreen:
+        name: 'service'
+    CalibrationScreen:
+        name: 'calibration'
+    CleaningScreen:
+        name: 'cleaning'
+    PinEntryScreen:
+        name: 'pin_entry'
+    TechnicianMenuScreen:
+        name: 'tech_menu'
+
+<MainScreen>: # Ebene 0
+    BoxLayout: # Ebene 1 (4 spaces)
+        # Eigenschaften: Ebene 2 (8 spaces) << KORRIGIERT
+        orientation: 'vertical'
+        padding: '10dp'
+        spacing: '10dp'
+
+        Label: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Cocktail Maschine'
+            font_size: '35sp'
+            size_hint_y: None
+            height: '50dp'
+
+        ScrollView: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            id: scroll_view
+            GridLayout: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                id: cocktail_list_grid
+                cols: 1
+                spacing: '5dp'
+                size_hint_y: None
+                height: self.minimum_height
+
+        Button: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Service Menü'
+            font_size: '20sp'
+            size_hint_y: None
+            height: '60dp'
+            on_press: app.root.current = 'service'
+
+<ServiceMenuScreen>: # Ebene 0
+    BoxLayout: # Ebene 1 (4 spaces)
+        # Eigenschaften: Ebene 2 (8 spaces)
+        orientation: 'vertical'
+        padding: '10dp'
+        spacing: '10dp'
+
+        Label: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Service Menü'
+            font_size: '35sp'
+            size_hint_y: None
+            height: '50dp'
+
+        ScrollView: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            size_hint_y: 0.6
+            GridLayout: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                id: pump_assignment_grid
+                cols: 2
+                spacing: '10dp'
+                size_hint_y: None
+                height: self.minimum_height
+
+        BoxLayout: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            size_hint_y: 0.4
+            orientation: 'vertical'
+            padding: ('0dp', '10dp', '0dp', '0dp')
+            spacing: '5dp'
+
+            Button: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                text: 'Pumpen zuordnen (TODO)'
+                font_size: '20sp'
+                # on_press: app.root.current = 'pump_assignment'
+            Button: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                text: 'Reinigung starten'
+                font_size: '20sp'
+                on_press: app.root.current = 'cleaning'
+            Button: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                text: 'Techniker Bereich...'
+                font_size: '20sp'
+                on_press: app.root.current = 'pin_entry'
+            Button: # Ebene 3 (12 spaces)
+                # Eigensc

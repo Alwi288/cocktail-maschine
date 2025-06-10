@@ -1,0 +1,478 @@
+#:kivy 1.11.1
+
+WindowManager: # Ebene 0
+    # Screen Deklarationen: Ebene 1 (4 spaces), name: Ebene 2 (8 spaces)
+    MainScreen:
+        name: 'main'
+    ServiceMenuScreen:
+        name: 'service'
+    PumpAssignmentScreen:
+        name: 'pump_assignment'
+    CalibrationScreen:
+        name: 'calibration'
+    CleaningScreen:
+        name: 'cleaning'
+    PinEntryScreen:
+        name: 'pin_entry'
+    TechnicianMenuScreen:
+        name: 'tech_menu'
+    SettingsScreen: # << Hinzugefügt
+        name: 'settings'
+
+<MainScreen>: # Ebene 0
+    BoxLayout: # Ebene 1 (4 spaces)
+        # Eigenschaften: Ebene 2 (8 spaces)
+        orientation: 'vertical'
+        padding: '10dp'
+        spacing: '10dp'
+
+        Label: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Cocktail Maschine'
+            font_size: '35sp'
+            size_hint_y: None
+            height: '50dp'
+
+        ScrollView: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            id: scroll_view
+            GridLayout: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                id: cocktail_list_grid
+                cols: 1
+                spacing: '5dp'
+                size_hint_y: None
+                height: self.minimum_height
+
+        Button: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Service Menü'
+            font_size: '20sp'
+            size_hint_y: None
+            height: '60dp'
+            on_press: app.root.current = 'service'
+
+# Haupt-Service-Menü (nur Navigation)
+<ServiceMenuScreen>: # Ebene 0
+    BoxLayout: # Ebene 1 (4 spaces)
+        # Eigenschaften: Ebene 2 (8 spaces)
+        orientation: 'vertical'
+        padding: '10dp'
+        spacing: '10dp'
+
+        Label: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Service Menü'
+            font_size: '35sp'
+            size_hint_y: None
+            height: dp(50)
+
+        Button: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Pumpen zuordnen' # Anwender Funktion
+            font_size: '20sp'
+            size_hint_y: 0.2 # Beispiel für Aufteilung
+            on_press: app.root.current = 'pump_assignment' # Zum neuen Screen
+
+        Button: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Reinigung starten' # Anwender Funktion
+            font_size: '20sp'
+            size_hint_y: 0.2
+            on_press: app.root.current = 'cleaning'
+
+        Button: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Techniker Bereich...' # Führt zu PIN
+            font_size: '20sp'
+            size_hint_y: 0.2
+            on_press: app.root.current = 'pin_entry'
+
+        Widget: # Ebene 2 (8 spaces) - Platzhalter füllt Rest
+            # Eigenschaften: Ebene 3 (12 spaces)
+            size_hint_y: 0.2
+
+        Button: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Zurück zum Hauptmenü'
+            font_size: '20sp'
+            size_hint_y: None # Feste Höhe unten
+            height: dp(60)
+            on_press: app.root.current = 'main'
+
+# Screen für Pumpenzuordnung
+<PumpAssignmentScreen>: # Ebene 0
+    BoxLayout: # Ebene 1 (4 spaces)
+        # Eigenschaften: Ebene 2 (8 spaces)
+        orientation: 'vertical'
+        padding: '10dp'
+        spacing: '10dp'
+
+        Label: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Pumpen zuordnen'
+            font_size: '35sp'
+            size_hint_y: None
+            height: '50dp'
+
+        ScrollView: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            GridLayout: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                id: pump_assignment_grid
+                cols: 2
+                spacing: '10dp'
+                size_hint_y: None
+                height: self.minimum_height
+
+        Button: # Ebene 2 (8 spaces) - Zurück zum Haupt-Service-Menü
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Zurück zum Service Menü'
+            font_size: '20sp'
+            size_hint_y: None
+            height: dp(60)
+            on_press: app.root.current = 'service'
+
+<CalibrationScreen>: # Ebene 0
+    BoxLayout: # Ebene 1 (4 spaces)
+        # Eigenschaften: Ebene 2 (8 spaces)
+        orientation: 'vertical'
+        padding: '10dp'
+        spacing: '10dp'
+
+        Label: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Pumpenkalibrierung'
+            font_size: '30sp'
+            size_hint_y: None
+            height: dp(40)
+
+        GridLayout: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            cols: 2
+            size_hint_y: None
+            height: dp(50)
+            spacing: '10dp'
+
+            Label: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                text: 'Pumpe wählen (1-8):'
+                font_size: '18sp'
+            Spinner: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                id: calibration_pump_spinner
+                text: 'Wählen'
+                values: []
+                font_size: '18sp'
+                on_text: root.on_spinner_select(self.text)
+
+        Label: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            id: current_calibration_label
+            text: root.current_calibration_text
+            size_hint_y: None
+            height: dp(30)
+            font_size: '16sp'
+            color: 0.7, 0.7, 0.7, 1
+
+        BoxLayout: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            size_hint_y: None
+            height: dp(50)
+            spacing: '10dp'
+
+            Button: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                id: start_calibration_button
+                text: 'Start (10s)'
+                font_size: '18sp'
+                disabled: True
+                on_press: root.start_calibration()
+            Label: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                text: 'Gemessen (ml):'
+                size_hint_x: 0.4
+                font_size: '18sp'
+            TextInput: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                id: measured_volume_input
+                input_filter: 'float'
+                multiline: False
+                font_size: '18sp'
+                disabled: True
+
+        Label: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            id: calibration_status_label
+            text: root.status_text
+            size_hint_y: 0.2
+
+        Widget: # Ebene 2 (8 spaces) - Platzhalter
+            # Eigenschaften: Ebene 3 (12 spaces)
+            size_hint_y: 1.0
+
+        BoxLayout: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            size_hint_y: None
+            height: dp(50)
+            spacing: '10dp'
+
+            Button: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                id: save_calibration_button
+                text: 'Speichern'
+                font_size: '18sp'
+                disabled: True
+                on_press: root.save_calibration()
+            Button: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                text: 'Zurück zum Techniker Menü'
+                font_size: '18sp'
+                on_press: app.root.current = 'tech_menu'
+
+<CleaningScreen>: # Ebene 0
+    BoxLayout: # Ebene 1 (4 spaces)
+        # Eigenschaften: Ebene 2 (8 spaces)
+        orientation: 'vertical'
+        padding: '10dp'
+        spacing: '10dp'
+
+        Label: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Reinigungsprogramm'
+            font_size: '30sp'
+            size_hint_y: None
+            height: dp(40)
+
+        Label: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            id: cleaning_status_label
+            text: root.status_text
+            size_hint_y: 0.4
+
+        Widget: # Ebene 2 (8 spaces) - Platzhalter
+            # Eigenschaften: Ebene 3 (12 spaces)
+            size_hint_y: 1.0
+
+        BoxLayout: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            size_hint_y: None
+            height: dp(50)
+            spacing: '10dp'
+
+            Button: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                id: start_cleaning_button
+                text: 'Start Reinigung'
+                font_size: '18sp'
+                disabled: root.is_running
+                on_press: root.start_cleaning_cycle()
+            Button: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                text: 'Zurück zum Service Menü'
+                font_size: '18sp'
+                disabled: root.is_running
+                on_press: app.root.current = 'service'
+
+<PinEntryScreen>: # Ebene 0
+    BoxLayout: # Ebene 1 (4 spaces)
+        # Eigenschaften: Ebene 2 (8 spaces)
+        orientation: 'vertical'
+        padding: '10dp'
+        spacing: '10dp'
+
+        Label: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Techniker-Zugang'
+            font_size: '30sp'
+            size_hint_y: None
+            height: dp(40)
+
+        Label: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            id: pin_status_label
+            text: root.status_text
+            size_hint_y: 0.1
+
+        TextInput: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            id: pin_input
+            password: True
+            multiline: False
+            font_size: '25sp'
+            size_hint_y: None
+            height: dp(50)
+            text: root.entered_pin
+            on_text: root.entered_pin = self.text
+
+        Widget: # Ebene 2 (8 spaces) - Platzhalter
+             # Eigenschaften: Ebene 3 (12 spaces)
+            size_hint_y: 1.0
+
+        BoxLayout: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            size_hint_y: None
+            height: dp(50)
+            spacing: '10dp'
+
+            Button: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                text: 'OK'
+                font_size: '18sp'
+                on_press: root.check_pin()
+            Button: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                text: 'Zurück zum Service Menü'
+                font_size: '18sp'
+                on_press: app.root.current = 'service'
+
+<TechnicianMenuScreen>: # Ebene 0
+    BoxLayout: # Ebene 1 (4 spaces)
+        # Eigenschaften: Ebene 2 (8 spaces)
+        orientation: 'vertical'
+        padding: '10dp'
+        spacing: '10dp'
+
+        Label: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Techniker Menü'
+            font_size: '35sp'
+            size_hint_y: None
+            height: dp(50)
+
+        Button: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Pumpen kalibrieren'
+            font_size: '20sp'
+            size_hint_y: None
+            height: '60dp'
+            on_press: app.root.current = 'calibration'
+
+        Button: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Einstellungen' # << Aktiviert
+            font_size: '20sp'
+            size_hint_y: None
+            height: '60dp'
+            disabled: False # << Aktiviert
+            on_press: app.root.current = 'settings' # << Ziel hinzugefügt
+
+        Widget: # Ebene 2 (8 spaces) - Platzhalter
+            # Eigenschaften: Ebene 3 (12 spaces)
+            size_hint_y: 1.0
+
+        Button: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Zurück zum Service Menü'
+            font_size: '20sp'
+            size_hint_y: None
+            height: '60dp'
+            on_press: app.root.current = 'service'
+
+# << NEUE REGEL für SettingsScreen >>
+<SettingsScreen>: # Ebene 0
+    # Properties der Python Klasse werden hier verfügbar gemacht
+    current_pin: setting_pin_input.text
+    current_glass_size: setting_glass_spinner.text
+    current_cleaning_duration: setting_cleaning_input.text
+
+    BoxLayout: # Ebene 1 (4 spaces)
+        # Eigenschaften: Ebene 2 (8 spaces)
+        orientation: 'vertical'
+        padding: '10dp'
+        spacing: '15dp'
+
+        Label: # Ebene 2 (8 spaces)
+            # Eigenschaften: Ebene 3 (12 spaces)
+            text: 'Einstellungen'
+            font_size: '30sp'
+            size_hint_y: None
+            height: dp(40)
+
+        GridLayout: # Ebene 2 (8 spaces) - Für die Einstellungen
+            # Eigenschaften: Ebene 3 (12 spaces)
+            cols: 2
+            spacing: '10dp'
+            size_hint_y: None
+            height: self.minimum_height # Höhe an Inhalt anpassen
+
+            # Techniker PIN
+            Label: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                text: 'Techniker PIN:'
+                font_size: '18sp'
+                halign: 'right'
+                valign: 'middle'
+                text_size: self.width, None
+            TextInput: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                id: setting_pin_input
+                # text: root.current_pin # Bindung an Property (alternativ zu on_text in Python)
+                password: True # Versteckt Eingabe
+                multiline: False
+                font_size: '18sp'
+                size_hint_y: None
+                height: dp(40)
+
+            # Standard Glasgröße
+            Label: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                text: 'Standard Glasgröße:'
+                font_size: '18sp'
+                halign: 'right'
+                valign: 'middle'
+                text_size: self.width, None
+            Spinner: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                id: setting_glass_spinner
+                text: root.current_glass_size # Bindet an Property
+                values: root.glass_size_options # Wird von Python gefüllt
+                font_size: '18sp'
+                size_hint_y: None
+                height: dp(40)
+                # on_text: root.current_glass_size = self.text # Update Property bei Auswahl (in Python Klasse)
+
+            # Reinigungsdauer
+            Label: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                text: 'Reinigungsdauer (s/Pumpe):'
+                font_size: '18sp'
+                halign: 'right'
+                valign: 'middle'
+                text_size: self.width, None
+            TextInput: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                id: setting_cleaning_input
+                # text: root.current_cleaning_duration # Bindet an Property
+                input_filter: 'int' # Nur ganze Zahlen erlauben
+                multiline: False
+                font_size: '18sp'
+                size_hint_y: None
+                height: dp(40)
+
+        Label: # Ebene 2 (8 spaces) - Status Label
+            # Eigenschaften: Ebene 3 (12 spaces)
+            id: settings_status_label
+            text: root.status_text # Bindet an Property in Python
+            size_hint_y: 0.1
+            font_size: '16sp'
+
+        Widget: # Ebene 2 (8 spaces) - Platzhalter
+            # Eigenschaften: Ebene 3 (12 spaces)
+            size_hint_y: 1.0
+
+        BoxLayout: # Ebene 2 (8 spaces) - Buttons unten
+            # Eigenschaften: Ebene 3 (12 spaces)
+            size_hint_y: None
+            height: dp(50)
+            spacing: '10dp'
+            Button: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                text: 'Speichern'
+                font_size: '18sp'
+                on_press: root.save_settings() # Ruft Python Methode auf
+            Button: # Ebene 3 (12 spaces)
+                # Eigenschaften: Ebene 4 (16 spaces)
+                text: 'Zurück zum Techniker Menü'
+                font_size: '18sp'
+                on_press: app.root.current = 'tech_menu'
