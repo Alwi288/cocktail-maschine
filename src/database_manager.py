@@ -549,8 +549,9 @@ def test_recipes():
     # ... (unverändert) ...
     print("\n--- Teste Recipe CRUD Funktionen ---")
     print("Füge Rezepte hinzu...")
-    add_recipe("Cuba Libre", "Ein Klassiker.", "cuba_libre.jpg", "Rum und Cola mischen, Limettensaft dazu.")
-    add_recipe("Screwdriver", "Simpel und gut.", "screwdriver.jpg", "Wodka und Orangensaft.")
+    image_folder = os.path.join('images')
+    add_recipe("Cuba Libre", "Ein Klassiker.", os.path.join(image_folder, "cuba_libre.png"), "Rum und Cola mischen, Limettensaft dazu.")
+    add_recipe("Screwdriver", "Simpel und gut.", os.path.join(image_folder, "screwdriver.png"), "Wodka und Orangensaft.")
     add_recipe("Cuba Libre") # Doppelt
 
     print("\nAlle Rezepte:")
