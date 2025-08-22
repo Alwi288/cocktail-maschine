@@ -74,6 +74,23 @@ def create_table(conn, create_table_sql):
     except Error as e:
         logger.error(f"Fehler beim Erstellen der Tabelle: {e}")
 
+
+def ensure_recipe_image_columns(conn):
+    """Migration: Stellt sicher, dass die Rezepte-Tabelle die Bildspalten besitzt."""
+    try:
+        cur = conn.cursor()
+        cur.execute("PRAGMA table_info(recipes)")
+        columns = [row[1] for row in cur.fetchall()]
+        if 'image_path' not in columns:
+            cur.execute("ALTER TABLE recipes ADD COLUMN image_path TEXT")
+            logger.info("Spalte 'image_path' zur Tabelle 'recipes' hinzugefügt.")
+        if 'image_blob' not in columns:
+            cur.execute("ALTER TABLE recipes ADD COLUMN image_blob BLOB")
+            logger.info("Spalte 'image_blob' zur Tabelle 'recipes' hinzugefügt.")
+        conn.commit()
+    except Error as e:
+        logger.error(f"Fehler beim Sicherstellen der Bildspalten in 'recipes': {e}")
+
 def initialize_database():
     logger.info("Initialisiere Datenbank...")
     conn = create_connection()
@@ -81,7 +98,17 @@ def initialize_database():
         # SQL Statements (alle 6 wie vorher)
         sql_create_ingredients_table = """ CREATE TABLE IF NOT EXISTS ingredients (ingredient_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL UNIQUE COLLATE NOCASE); """
         sql_create_pumps_table = """ CREATE TABLE IF NOT EXISTS pumps (pump_index INTEGER PRIMARY KEY, assigned_ingredient_id INTEGER, current_volume_ml REAL DEFAULT 0.0, calibration_ml_per_sec REAL DEFAULT 0.0, FOREIGN KEY (assigned_ingredient_id) REFERENCES ingredients (ingredient_id) ON DELETE SET NULL); """
-        sql_create_recipes_table = """ CREATE TABLE IF NOT EXISTS recipes (recipe_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL UNIQUE COLLATE NOCASE, description TEXT, image_path TEXT, instructions TEXT); """
+        # Rezepte können optional ein Bild speichern. Entweder wird der Dateipfad
+        # in `image_path` abgelegt oder das Bild direkt als BLOB in `image_blob`.
+        # Es sollte jeweils nur eines der beiden Felder genutzt werden.
+        sql_create_recipes_table = """ CREATE TABLE IF NOT EXISTS recipes (
+            recipe_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE COLLATE NOCASE,
+            description TEXT,
+            image_path TEXT,
+            image_blob BLOB,
+            instructions TEXT
+        ); """
         sql_create_recipe_ingredients_table = """ CREATE TABLE IF NOT EXISTS recipe_ingredients (recipe_ingredient_id INTEGER PRIMARY KEY AUTOINCREMENT, recipe_id INTEGER NOT NULL, ingredient_id INTEGER NOT NULL, amount REAL NOT NULL, unit TEXT DEFAULT 'ml', FOREIGN KEY (recipe_id) REFERENCES recipes (recipe_id) ON DELETE CASCADE, FOREIGN KEY (ingredient_id) REFERENCES ingredients (ingredient_id) ON DELETE CASCADE); """
         sql_create_settings_table = """ CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY COLLATE NOCASE, value TEXT); """
         sql_create_pour_log_table = """ CREATE TABLE IF NOT EXISTS pour_log (log_id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TIMESTAMP NOT NULL, recipe_id INTEGER, size_ml REAL, FOREIGN KEY (recipe_id) REFERENCES recipes (recipe_id) ON DELETE SET NULL); """
@@ -90,6 +117,7 @@ def initialize_database():
         create_table(conn, sql_create_ingredients_table)
         create_table(conn, sql_create_pumps_table)
         create_table(conn, sql_create_recipes_table)
+        ensure_recipe_image_columns(conn)
         create_table(conn, sql_create_recipe_ingredients_table)
         create_table(conn, sql_create_settings_table)
         create_table(conn, sql_create_pour_log_table)
@@ -212,10 +240,15 @@ def get_all_ingredients():
 
 # ========== CRUD Recipes ==========
 # (unverändert)
-def add_recipe(name, description=None, image_path=None, instructions=None):
-    # ...
-    sql = ''' INSERT INTO recipes(name, description, image_path, instructions)
-              VALUES(?,?,?,?) '''
+def add_recipe(name, description=None, image_path=None, image_blob=None, instructions=None):
+    """Fügt ein neues Rezept hinzu.
+
+    image_path: Pfad zur Bilddatei
+    image_blob: Binärdaten des Bildes
+    Nur eines der beiden sollte übergeben werden.
+    """
+    sql = ''' INSERT INTO recipes(name, description, image_path, image_blob, instructions)
+              VALUES(?,?,?,?,?) '''
     conn = create_connection()
     if conn is None: return None
     try:
@@ -226,7 +259,7 @@ def add_recipe(name, description=None, image_path=None, instructions=None):
             logger.warning(f"Rezept '{name}' existiert bereits mit ID {existing[0]}. Füge nicht erneut hinzu.")
             conn.close()
             return existing[0]
-        cur.execute(sql, (name, description, image_path, instructions))
+        cur.execute(sql, (name, description, image_path, image_blob, instructions))
         conn.commit()
         new_id = cur.lastrowid
         logger.info(f"Rezept '{name}' erfolgreich mit ID {new_id} hinzugefügt.")
@@ -252,6 +285,73 @@ def get_recipe_by_id(recipe_id):
         logger.error(f"Fehler beim Holen des Rezepts mit ID {recipe_id}: {e}")
         conn.close()
         return None
+
+
+def update_recipe(recipe_id, name=None, description=None, image_path=None, image_blob=None, instructions=None):
+    """Aktualisiert ein bestehendes Rezept. Nur übergebene Felder werden geändert."""
+    conn = create_connection()
+    if conn is None: return False
+    try:
+        cur = conn.cursor()
+        fields = []
+        params = []
+        if name is not None:
+            fields.append("name=?")
+            params.append(name)
+        if description is not None:
+            fields.append("description=?")
+            params.append(description)
+        if image_path is not None or image_blob is not None:
+            fields.append("image_path=?")
+            params.append(image_path if image_path is not None else None)
+            fields.append("image_blob=?")
+            params.append(image_blob if image_blob is not None else None)
+        if instructions is not None:
+            fields.append("instructions=?")
+            params.append(instructions)
+        if not fields:
+            conn.close()
+            return False
+        params.append(recipe_id)
+        cur.execute(f"UPDATE recipes SET {', '.join(fields)} WHERE recipe_id=?", params)
+        conn.commit()
+        logger.info(f"Rezept ID {recipe_id} aktualisiert: {', '.join(fields)}")
+        conn.close()
+        return True
+    except Error as e:
+        logger.error(f"Fehler beim Aktualisieren des Rezepts ID {recipe_id}: {e}")
+        conn.close()
+        return False
+
+
+def update_recipe_image(recipe_id, image_path_or_blob):
+    """Aktualisiert nur das Bild eines Rezepts.
+
+    Übergib entweder einen Dateipfad (str) oder Binärdaten (bytes).
+    Das jeweils andere Feld wird auf NULL gesetzt.
+    """
+    conn = create_connection()
+    if conn is None: return False
+    try:
+        cur = conn.cursor()
+        if isinstance(image_path_or_blob, bytes):
+            cur.execute(
+                "UPDATE recipes SET image_blob = ?, image_path = NULL WHERE recipe_id = ?",
+                (image_path_or_blob, recipe_id),
+            )
+        else:
+            cur.execute(
+                "UPDATE recipes SET image_path = ?, image_blob = NULL WHERE recipe_id = ?",
+                (image_path_or_blob, recipe_id),
+            )
+        conn.commit()
+        logger.info(f"Bild für Rezept ID {recipe_id} aktualisiert.")
+        conn.close()
+        return True
+    except Error as e:
+        logger.error(f"Fehler beim Aktualisieren des Rezeptsbilds ID {recipe_id}: {e}")
+        conn.close()
+        return False
 
 def get_recipe_by_name(name):
     # ...
@@ -549,8 +649,8 @@ def test_recipes():
     # ... (unverändert) ...
     print("\n--- Teste Recipe CRUD Funktionen ---")
     print("Füge Rezepte hinzu...")
-    add_recipe("Cuba Libre", "Ein Klassiker.", "cuba_libre.jpg", "Rum und Cola mischen, Limettensaft dazu.")
-    add_recipe("Screwdriver", "Simpel und gut.", "screwdriver.jpg", "Wodka und Orangensaft.")
+    add_recipe("Cuba Libre", "Ein Klassiker.", image_path="cuba_libre.jpg", instructions="Rum und Cola mischen, Limettensaft dazu.")
+    add_recipe("Screwdriver", "Simpel und gut.", image_path="screwdriver.jpg", instructions="Wodka und Orangensaft.")
     add_recipe("Cuba Libre") # Doppelt
 
     print("\nAlle Rezepte:")
