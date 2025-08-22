@@ -14,26 +14,41 @@ if not logger.handlers:
 # ---------------------
 
 # --- get_available_recipes ---
-# (Unverändert von oben)
 def get_available_recipes():
+    """
+    Ermittelt alle Cocktails, deren benötigte Zutaten den vorhandenen Pumpen
+    zugewiesen sind.
+
+    Returns:
+        list: Enthält Tupel ``(recipe_id, name, description, image_path, instructions)``.
+              Der ``image_path`` befindet sich an **Index 3**.
+    """
     available_recipes = []
     all_recipes = db.get_all_recipes()
     all_pumps_info = db.get_all_pumps_info()
+
     assigned_ingredient_ids = set()
     for pump_info in all_pumps_info:
         if pump_info[1] is not None:
             assigned_ingredient_ids.add(pump_info[1])
     logger.debug(f"Zugewiesene Zutaten-IDs: {assigned_ingredient_ids}")
+
     if not assigned_ingredient_ids:
         # logger.warning("Keine Zutaten den Pumpen zugewiesen...") # Weniger Warnungen
         return []
+
     for recipe in all_recipes:
         recipe_id = recipe[0]
         recipe_name = recipe[1]
+        description = recipe[2]
+        image_path = recipe[3]
+        instructions = recipe[4]
+
         required_ingredients_info = db.get_ingredients_for_recipe(recipe_id)
         if not required_ingredients_info:
             # logger.warning(f"Rezept '{recipe_name}' hat keine Zutaten...")
             continue
+
         required_ingredient_ids = set()
         all_ingredients_found_in_db = True
         for req_ing_info in required_ingredients_info:
@@ -42,18 +57,29 @@ def get_available_recipes():
             if ingredient:
                 required_ingredient_ids.add(ingredient[0])
             else:
-                logger.error(f"Zutat '{ing_name}' für Rezept '{recipe_name}' nicht in Zutatenliste gefunden!")
+                logger.error(
+                    f"Zutat '{ing_name}' für Rezept '{recipe_name}' nicht in Zutatenliste gefunden!"
+                )
                 all_ingredients_found_in_db = False
                 break
         if not all_ingredients_found_in_db:
             continue
+
         logger.debug(f"Rezept '{recipe_name}': Benötigt IDs: {required_ingredient_ids}")
         if required_ingredient_ids.issubset(assigned_ingredient_ids):
-            logger.debug(f"Rezept '{recipe_name}' ist verfügbar (basierend auf Zuweisung).")
-            available_recipes.append(recipe)
+            logger.debug(
+                f"Rezept '{recipe_name}' ist verfügbar (basierend auf Zuweisung)."
+            )
+            # Bildpfad (Index 3) bewusst behalten
+            available_recipes.append(
+                (recipe_id, recipe_name, description, image_path, instructions)
+            )
         else:
             missing_ids = required_ingredient_ids.difference(assigned_ingredient_ids)
-            logger.debug(f"Rezept '{recipe_name}' ist NICHT verfügbar. Fehlende Zutat-IDs: {missing_ids}")
+            logger.debug(
+                f"Rezept '{recipe_name}' ist NICHT verfügbar. Fehlende Zutat-IDs: {missing_ids}"
+            )
+
     logger.info(f"Insgesamt {len(available_recipes)} Rezepte potenziell verfügbar.")
     return available_recipes
 
