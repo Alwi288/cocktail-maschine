@@ -1,5 +1,34 @@
 #:kivy 1.11.1
 
+<CocktailImageButton@ButtonBehavior+RelativeLayout>:
+    source: ''
+    text: ''
+    size_hint: None, None
+    size: '150dp', '150dp'
+    Image:
+        source: root.source
+        allow_stretch: True
+        keep_ratio: False
+        size: root.size
+        pos: root.pos
+    Label:
+        text: root.text
+        size_hint_y: None
+        height: '30dp'
+        size_hint_x: 1
+        x: 0
+        y: 0
+        text_size: self.size
+        halign: 'center'
+        valign: 'middle'
+        color: 1, 1, 1, 1
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 0.6
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
 WindowManager: # Ebene 0
     # Screen Deklarationen: Ebene 1 (4 spaces), name: Ebene 2 (8 spaces)
     MainScreen:
@@ -39,7 +68,7 @@ WindowManager: # Ebene 0
             GridLayout: # Ebene 3 (12 spaces)
                 # Eigenschaften: Ebene 4 (16 spaces)
                 id: cocktail_list_grid
-                cols: 1
+                cols: 2
                 spacing: '5dp'
                 size_hint_y: None
                 height: self.minimum_height
