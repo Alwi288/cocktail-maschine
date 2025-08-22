@@ -213,7 +213,11 @@ def get_all_ingredients():
 # ========== CRUD Recipes ==========
 # (unverändert)
 def add_recipe(name, description=None, image_path=None, instructions=None):
-    # ...
+    """Fügt ein Rezept hinzu.
+
+    Der optionale Parameter ``image_path`` erwartet einen relativen Pfad zum Bild,
+    z. B. ``assets/images/cuba_libre.jpg``.
+    """
     sql = ''' INSERT INTO recipes(name, description, image_path, instructions)
               VALUES(?,?,?,?) '''
     conn = create_connection()
@@ -549,8 +553,8 @@ def test_recipes():
     # ... (unverändert) ...
     print("\n--- Teste Recipe CRUD Funktionen ---")
     print("Füge Rezepte hinzu...")
-    add_recipe("Cuba Libre", "Ein Klassiker.", "cuba_libre.jpg", "Rum und Cola mischen, Limettensaft dazu.")
-    add_recipe("Screwdriver", "Simpel und gut.", "screwdriver.jpg", "Wodka und Orangensaft.")
+    add_recipe("Cuba Libre", "Ein Klassiker.", "assets/images/cuba_libre.jpg", "Rum und Cola mischen, Limettensaft dazu.")
+    add_recipe("Screwdriver", "Simpel und gut.", "assets/images/screwdriver.jpg", "Wodka und Orangensaft.")
     add_recipe("Cuba Libre") # Doppelt
 
     print("\nAlle Rezepte:")
