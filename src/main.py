@@ -10,6 +10,7 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty, ListProperty, DictProperty
 from kivy.metrics import dp
+from ui.cocktail_image_button import CocktailImageButton
 
 # Standard Python Imports
 import yaml
@@ -78,13 +79,15 @@ class MainScreen(Screen): # Ebene 0
         # Schleife: Ebene 2 (8 spaces)
         for recipe in available_recipes:
             # Code in Schleife: Ebene 3 (12 spaces)
-            recipe_id, recipe_name, _, _, _ = recipe # Unpack recipe data
-            # Create a button for each cocktail
-            btn = Button(text=recipe_name,
-                         size_hint_y=None,
-                         height=button_height,
-                         font_size='20sp')
-            btn.recipe_id = recipe_id # Store recipe ID in the button instance
+            recipe_id, recipe_name, _, image_path, _ = recipe # Unpack recipe data
+            # Create an image button for each cocktail
+            btn = CocktailImageButton(
+                recipe_id=recipe_id,
+                source=image_path if image_path else '',
+                size_hint_y=None,
+                height=button_height,
+            )
+            btn.text = recipe_name  # Store recipe name for logging
             btn.bind(on_press=self.cocktail_selected) # Bind the on_press event
             cocktail_list_widget.add_widget(btn)
 
