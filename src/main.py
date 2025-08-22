@@ -4,12 +4,15 @@ from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
 from kivy.lang import Builder
 from kivy.clock import Clock
-from kivy.uix.button import Button
 from kivy.uix.spinner import Spinner
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty, ListProperty, DictProperty
 from kivy.metrics import dp
+from kivy.core.image import Image as CoreImage
+from kivy.resources import resource_find
+
+from ui import CocktailImageButton
 
 # Standard Python Imports
 import yaml
@@ -36,6 +39,8 @@ except ImportError as e:
 # --- No central logging setup here for now ---
 # Using basic print for feedback during debugging
 print("INFO: Cocktail App startet...")
+
+PLACEHOLDER_IMAGE = resource_find('data/logo/kivy-icon-64.png') or ''
 
 
 # --- Screen Class Definitions ---
@@ -73,32 +78,69 @@ class MainScreen(Screen): # Ebene 0
             return
 
         print(f"INFO: Füge {len(available_recipes)} Cocktails zur Liste hinzu...")
-        button_height = dp(60) # Height for each button
+        cocktail_list_widget.size_hint_x = None
+        cocktail_list_widget.size_hint_y = None
+
+        total_height = 0
+        max_width = 0
+        spacing = cocktail_list_widget.spacing
+        if isinstance(spacing, (list, tuple)):
+            spacing_y = spacing[1]
+        else:
+            spacing_y = spacing
 
         # Schleife: Ebene 2 (8 spaces)
         for recipe in available_recipes:
             # Code in Schleife: Ebene 3 (12 spaces)
-            recipe_id, recipe_name, _, _, _ = recipe # Unpack recipe data
-            # Create a button for each cocktail
-            btn = Button(text=recipe_name,
-                         size_hint_y=None,
-                         height=button_height,
-                         font_size='20sp')
-            btn.recipe_id = recipe_id # Store recipe ID in the button instance
-            btn.bind(on_press=self.cocktail_selected) # Bind the on_press event
+            recipe_id, recipe_name, _, image_path, _ = recipe  # Unpack recipe data
+            resolved_path = image_path
+            if resolved_path and not os.path.isabs(resolved_path):
+                resolved_path = os.path.abspath(
+                    os.path.join(os.path.dirname(__file__), '..', resolved_path)
+                )
+            if not resolved_path or not os.path.exists(resolved_path):
+                resolved_path = PLACEHOLDER_IMAGE
+
+            img_width = img_height = dp(64)
+            if resolved_path:
+                try:
+                    img = CoreImage(resolved_path)
+                    w, h = img.size
+                    img_width, img_height = dp(w), dp(h)
+                except Exception as e:
+                    print(
+                        f"WARNUNG: Bild '{resolved_path}' konnte nicht geladen werden ({e})."
+                    )
+                    resolved_path = ''
+
+            btn = CocktailImageButton(
+                source=resolved_path or '',
+                size_hint=(None, None),
+                width=img_width,
+                height=img_height,
+            )
+            btn.recipe_id = recipe_id
+            btn.recipe_name = recipe_name
+            btn.bind(on_press=self.cocktail_selected)
             cocktail_list_widget.add_widget(btn)
 
+            total_height += img_height
+            max_width = max(max_width, img_width)
+
         # Code nach Schleife: Ebene 2 (8 spaces)
-        # Update GridLayout height based on content
-        spacing_y = cocktail_list_widget.spacing[1] if isinstance(cocktail_list_widget.spacing, (list, tuple)) else cocktail_list_widget.spacing
-        cocktail_list_widget.height = len(available_recipes) * (button_height + spacing_y) - spacing_y if len(available_recipes) > 0 else 0
+        # Update GridLayout size based on content
+        if available_recipes:
+            cocktail_list_widget.height = total_height + spacing_y * (len(available_recipes) - 1)
+            cocktail_list_widget.width = max_width
+        else:
+            cocktail_list_widget.height = dp(50)
 
     # Methode: Ebene 1 (4 spaces)
     def cocktail_selected(self, instance):
         """Called when a cocktail button is pressed."""
         # Code: Ebene 2 (8 spaces)
         recipe_id = instance.recipe_id
-        recipe_name = instance.text
+        recipe_name = getattr(instance, 'recipe_name', '')
         print(f"INFO: Cocktail '{recipe_name}' (ID: {recipe_id}) ausgewählt!")
 
         # 1. Get current glass size setting from DB
